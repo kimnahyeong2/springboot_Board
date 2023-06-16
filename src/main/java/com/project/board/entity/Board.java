@@ -25,14 +25,16 @@ public class Board extends Timestamped{
     @Column(name = "pwd", nullable = false, length = 500)
     private String pwd;
 
-    public Board(BoardRequestDto requestDto){
+    public Board(BoardRequestDto.requestDto requestDto){
         this.title = requestDto.getTitle();
         this.username = requestDto.getUsername();
         this.contents = requestDto.getContents();
         this.pwd = requestDto.getPwd();
     }
 
-    public void update(BoardRequestDto requestDto){
+    public void update(BoardRequestDto.requestDto requestDto){
+        this.title = requestDto.getTitle();
+        this.username = requestDto.getUsername();
         this.contents = requestDto.getContents();
     }
 }

@@ -1,49 +1,70 @@
 package com.project.board.service;
 
+import com.project.board.dto.BoardDto;
 import com.project.board.dto.BoardRequestDto;
-import com.project.board.dto.BoardResponseDto;
 import com.project.board.entity.Board;
 import com.project.board.repository.BoardRepository;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
+@Slf4j
 public class BoardService {
     private final BoardRepository boardRepository;
-
     @Autowired
     public BoardService(BoardRepository boardRepository){
         this.boardRepository = boardRepository;
     }
 
-    public List<BoardResponseDto> getBoards() {
-        return boardRepository.findAllByOrderByModifiedAtDesc().stream().map(BoardResponseDto::new).toList();
+    public List<BoardDto.BoardReadResponseDto> getBoards() {
+        return boardRepository.findAllByOrderByModifiedAtDesc().stream().map(BoardDto.BoardReadResponseDto::new).toList();
     }
 
-    public BoardResponseDto createBoard(BoardRequestDto requestDto) {
+    public BoardDto.BoardResponseDto createBoard(BoardRequestDto.requestDto requestDto) {
         Board board = new Board(requestDto);
 
         Board saveBoard = boardRepository.save(board);
 
-        BoardResponseDto boardResponseDto = new BoardResponseDto(saveBoard);
+        BoardDto.BoardResponseDto boardResponseDto;
+        boardResponseDto = new BoardDto.BoardResponseDto(saveBoard);
 
         return boardResponseDto;
     }
-
-    @Transactional
-    public Long updateBoard(Long id, BoardRequestDto requestDto) {
-        Board board = findBoard(id);
-        board.update(requestDto);
-        return id;
+    public BoardDto.BoardReadResponseDto getSelectBoards(Long id) {
+        Board board = findBoard((id));
+        return ResponseEntity.ok().body(new BoardDto.BoardReadResponseDto(board)).getBody();
     }
 
-    public Long deleteBoard(Long id){
+    @Transactional
+    public List<BoardDto.BoardReadResponseDto> updateBoard(Long id, BoardRequestDto.requestDto requestDto) {
         Board board = findBoard(id);
-        boardRepository.delete(board);
-        return id;
+        boolean check = comparePwd(requestDto, board);
+        if(!check){
+            return null;
+        }
+        else{
+            board.update(requestDto);
+            return boardRepository.findAllByOrderByModifiedAtDesc().stream().map(BoardDto.BoardReadResponseDto::new).toList();
+        }
+    }
+
+    public String deleteBoard(Long id, BoardRequestDto.requestDto requestDto){
+        Board board = findBoard(id);
+        boolean check = comparePwd(requestDto, board);
+        if(!check){
+            return "비밀번호가 다릅니다:)";
+        }
+        else{
+            boardRepository.delete(board);
+            return "삭제 성공!";
+        }
+
     }
 
     private Board findBoard(Long id){
@@ -51,4 +72,12 @@ public class BoardService {
                 new IllegalArgumentException("존재하지 않습니다")
         );
     }
+
+    private boolean comparePwd(BoardRequestDto.requestDto requestDto, Board board){
+        log.info("원래 비번 : " + board.getPwd());
+        log.info("입력 비번 : " + requestDto.getPwd());
+        return Objects.equals(board.getPwd(), requestDto.getPwd());
+    }
+
+
 }
