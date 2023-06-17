@@ -23,7 +23,7 @@ public class BoardService {
     }
 
     public List<BoardDto.BoardReadResponseDto> getBoards() {
-        return boardRepository.findAllByOrderByModifiedAtDesc().stream().map(BoardDto.BoardReadResponseDto::new).toList();
+        return boardRepository.findAllByOrderByCreatedAtDesc().stream().map(BoardDto.BoardReadResponseDto::new).toList();
     }
 
     public BoardDto.BoardResponseDto createBoard(BoardRequestDto.requestDto requestDto) {
@@ -37,7 +37,7 @@ public class BoardService {
         return boardResponseDto;
     }
     public BoardDto.BoardReadResponseDto getSelectBoards(Long id) {
-        Board board = findBoard((id));
+        Board board = findBoard(id);
         return ResponseEntity.ok().body(new BoardDto.BoardReadResponseDto(board)).getBody();
     }
 
@@ -50,7 +50,7 @@ public class BoardService {
         }
         else{
             board.update(requestDto);
-            return boardRepository.findAllByOrderByModifiedAtDesc().stream().map(BoardDto.BoardReadResponseDto::new).toList();
+            return boardRepository.findAllByOrderByCreatedAtDesc().stream().map(BoardDto.BoardReadResponseDto::new).toList();
         }
     }
 
