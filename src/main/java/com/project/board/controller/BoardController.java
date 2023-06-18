@@ -1,6 +1,6 @@
 package com.project.board.controller;
 
-import com.project.board.dto.BoardDto;
+import com.project.board.dto.BoardResponseDto;
 import com.project.board.dto.BoardRequestDto;
 import com.project.board.service.BoardService;
 import lombok.extern.slf4j.Slf4j;
@@ -22,29 +22,29 @@ public class BoardController {
     }
 
     @GetMapping("/feed")
-    public List<BoardDto.BoardReadResponseDto> getBoards(){
+    public List<BoardResponseDto.BoardReadResponseDto> getBoards(){
         return boardService.getBoards();
     }
 
     @PostMapping("/feed")
-    public BoardDto.BoardResponseDto createBoard(@RequestBody BoardRequestDto.requestDto requestDto){
+    public BoardResponseDto.BoardBasicResponseDto createBoard(@RequestBody BoardRequestDto requestDto){
         return boardService.createBoard(requestDto);
     }
 
     @GetMapping("/feed/{id}")
-    public BoardDto.BoardReadResponseDto getSelectBoards(@PathVariable Long id){
+    public BoardResponseDto.BoardReadResponseDto getSelectBoards(@PathVariable Long id){
         return boardService.getSelectBoards(id);
     }
 
 
     @PutMapping("/feed/{id}")
-    public List<BoardDto.BoardReadResponseDto> updateBoard(@PathVariable Long id, @RequestBody BoardRequestDto.requestDto requestDto){
+    public List<BoardResponseDto.BoardReadResponseDto> updateBoard(@PathVariable Long id, @RequestBody BoardRequestDto requestDto){
         log.info("controller : " + requestDto.getPwd());
         return boardService.updateBoard(id, requestDto);
     }
 
     @DeleteMapping("/feed/{id}")
-    public String deleteMemo(@PathVariable Long id, @RequestBody BoardRequestDto.requestDto requestDto){
+    public String deleteMemo(@PathVariable Long id, @RequestBody BoardRequestDto requestDto){
         return boardService.deleteBoard(id, requestDto);
     }
 }

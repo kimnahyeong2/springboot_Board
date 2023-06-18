@@ -1,6 +1,6 @@
 package com.project.board.service;
 
-import com.project.board.dto.BoardDto;
+import com.project.board.dto.BoardResponseDto;
 import com.project.board.dto.BoardRequestDto;
 import com.project.board.entity.Board;
 import com.project.board.repository.BoardRepository;
@@ -22,49 +22,38 @@ public class BoardService {
         this.boardRepository = boardRepository;
     }
 
-    public List<BoardDto.BoardReadResponseDto> getBoards() {
-        return boardRepository.findAllByOrderByCreatedAtDesc().stream().map(BoardDto.BoardReadResponseDto::new).toList();
+    public List<BoardResponseDto.BoardReadResponseDto> getBoards() {
+        return boardRepository.findAllByOrderByCreatedAtDesc().stream().map(BoardResponseDto.BoardReadResponseDto::new).toList();
     }
 
-    public BoardDto.BoardResponseDto createBoard(BoardRequestDto.requestDto requestDto) {
+    public BoardResponseDto.BoardBasicResponseDto createBoard(BoardRequestDto requestDto) {
         Board board = new Board(requestDto);
 
         Board saveBoard = boardRepository.save(board);
 
-        BoardDto.BoardResponseDto boardResponseDto;
-        boardResponseDto = new BoardDto.BoardResponseDto(saveBoard);
+        BoardResponseDto.BoardBasicResponseDto boardResponseDto;
+        boardResponseDto = new BoardResponseDto.BoardBasicResponseDto(saveBoard);
 
         return boardResponseDto;
     }
-    public BoardDto.BoardReadResponseDto getSelectBoards(Long id) {
+    public BoardResponseDto.BoardReadResponseDto getSelectBoards(Long id) {
         Board board = findBoard(id);
-        return ResponseEntity.ok().body(new BoardDto.BoardReadResponseDto(board)).getBody();
+        return ResponseEntity.ok().body(new BoardResponseDto.BoardReadResponseDto(board)).getBody();
     }
 
     @Transactional
-    public List<BoardDto.BoardReadResponseDto> updateBoard(Long id, BoardRequestDto.requestDto requestDto) {
+    public List<BoardResponseDto.BoardReadResponseDto> updateBoard(Long id, BoardRequestDto requestDto) {
         Board board = findBoard(id);
-        boolean check = comparePwd(requestDto, board);
-        if(!check){
-            return null;
-        }
-        else{
-            board.update(requestDto);
-            return boardRepository.findAllByOrderByCreatedAtDesc().stream().map(BoardDto.BoardReadResponseDto::new).toList();
-        }
+        comparePwd(requestDto, board);
+        board.update(requestDto);
+        return boardRepository.findAllByOrderByCreatedAtDesc().stream().map(BoardResponseDto.BoardReadResponseDto::new).toList();
     }
 
-    public String deleteBoard(Long id, BoardRequestDto.requestDto requestDto){
+    public String deleteBoard(Long id, BoardRequestDto requestDto){
         Board board = findBoard(id);
-        boolean check = comparePwd(requestDto, board);
-        if(!check){
-            return "비밀번호가 다릅니다:)";
-        }
-        else{
-            boardRepository.delete(board);
-            return "삭제 성공!";
-        }
-
+        comparePwd(requestDto, board);
+        boardRepository.delete(board);
+        return "삭제 성공!";
     }
 
     private Board findBoard(Long id){
@@ -73,11 +62,10 @@ public class BoardService {
         );
     }
 
-    private boolean comparePwd(BoardRequestDto.requestDto requestDto, Board board){
-        log.info("원래 비번 : " + board.getPwd());
-        log.info("입력 비번 : " + requestDto.getPwd());
-        return Objects.equals(board.getPwd(), requestDto.getPwd());
+    private void comparePwd(BoardRequestDto requestDto, Board board){
+        if(!Objects.equals(board.getPwd(), requestDto.getPwd())){
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다");
+        }
     }
-
 
 }
