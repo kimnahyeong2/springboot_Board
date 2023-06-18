@@ -49,11 +49,11 @@ public class BoardService {
         return boardRepository.findAllByOrderByCreatedAtDesc().stream().map(BoardResponseDto.BoardReadResponseDto::new).toList();
     }
 
-    public String deleteBoard(Long id, BoardRequestDto requestDto){
+    public boolean deleteBoard(Long id, BoardRequestDto requestDto){
         Board board = findBoard(id);
         comparePwd(requestDto, board);
         boardRepository.delete(board);
-        return "삭제 성공!";
+        return true;
     }
 
     private Board findBoard(Long id){
