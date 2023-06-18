@@ -44,7 +44,7 @@ public class BoardController {
     }
 
     @DeleteMapping("/feed/{id}")
-    public String deleteMemo(@PathVariable Long id, @RequestBody BoardRequestDto requestDto){
+    public boolean deleteMemo(@PathVariable Long id, @RequestBody BoardRequestDto requestDto){
         return boardService.deleteBoard(id, requestDto);
     }
 }

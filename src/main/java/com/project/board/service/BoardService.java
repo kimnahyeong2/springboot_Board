@@ -31,10 +31,7 @@ public class BoardService {
 
         Board saveBoard = boardRepository.save(board);
 
-        BoardResponseDto.BoardBasicResponseDto boardResponseDto;
-        boardResponseDto = new BoardResponseDto.BoardBasicResponseDto(saveBoard);
-
-        return boardResponseDto;
+        return new BoardResponseDto.BoardBasicResponseDto(saveBoard);
     }
     public BoardResponseDto.BoardReadResponseDto getSelectBoards(Long id) {
         Board board = findBoard(id);
